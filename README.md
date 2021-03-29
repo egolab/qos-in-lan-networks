@@ -1,21 +1,24 @@
 # qos-in-lan-networks
 Mininet documentation: http://mininet.org/
 
-To install Mininet locally run the following commands:
+It is advisable to run Mininet on Ubuntu 18.04 virtual machine. To install Mininet run the following commands:
 ```
 sudo apt-get install mininet -y
 git clone git://github.com/mininet/mininet
 mininet/util/install.sh -a
 ```
 
-Script `topology.py` creates a custom topology in *Mininet* environment. By default it is build as shown in the picture below:
-![topology](topology.png "Topology")
+Script `src/topology.py` creates a custom topology in *Mininet* environment. By default it is build as shown in the picture below:
+
+<p align="center">
+  <img src="resources/topology.png" width="60%">
+</p>
 
 To run the topology with default parameters use the following command: <br/><br/>
-`sudo python topology.py`
+`sudo python src/topology.py`
 
 To customize the number of switches and hosts run: <br/><br/>
-`sudo python topology.py --sw=5 --hosts=2`, <br/><br/>
+`sudo python src/topology.py --sw=5 --hosts=2`, <br/><br/>
 where `--sw` means number of switches (apart from the Main Switch) and `--hosts` means the number of hosts connected to each switch. By default `--sw=2 --hosts=5`. Also, it is possible to modify link bandwidth, delay and loss.
 
 The output should be similar to the one below:

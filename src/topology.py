@@ -1,9 +1,12 @@
+#!/usr/bin/python
+
 from mininet.topo import Topo
 from mininet.cli import CLI
 from mininet.net import Mininet
 from mininet.log import setLogLevel, info
 from mininet.node import Controller
 from mininet.node import CPULimitedHost, Host
+from mininet.link import TCLink
 import argparse
 
 
@@ -46,7 +49,7 @@ if __name__ == '__main__':
 
     setLogLevel('info')
     topo = TreeTopology(switches = s, hosts = h)
-    net = Mininet(topo=topo, host=CPULimitedHost)
+    net = Mininet(topo=topo, link=TCLink, host=CPULimitedHost)
     c = net.addController('c', controller=Controller, ip='127.0.0.1', port=6633)
 
     net.addNAT().configDefault()
