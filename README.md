@@ -1,4 +1,6 @@
 # qos-in-lan-networks
+
+## Mininet
 Mininet documentation: http://mininet.org/
 
 It is advisable to run Mininet on Ubuntu 18.04 virtual machine. To install Mininet run the following commands:
@@ -64,3 +66,14 @@ In Mininet CLI the following commands can be used:
 - `pingall` to test connectivity between all hosts
 - `<host> <command>`, eg. `h1 ifconfig` to run command on specific host without using `xterm`
 - `exit` to exit Mininet CLI
+
+## VLC
+To install VLC run command: <br/><br/>
+`sudo apt-get install vlc`
+
+On server: <br/><br/>
+`cvlc -vvv <path-to-file>.mp3 --sout "#standard{access=http,mux=ogg,dst=<ip address>:<port>}" --run-time 40 vlc://quit`
+
+
+On client: <br/><br/>
+`cvlc http://<ip address>:<port>`

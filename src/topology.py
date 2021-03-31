@@ -8,6 +8,7 @@ from mininet.node import Controller
 from mininet.node import CPULimitedHost, Host
 from mininet.link import TCLink
 import argparse
+import os, sys
 
 
 class TreeTopology(Topo):
@@ -27,9 +28,27 @@ class TreeTopology(Topo):
             for host in range(hosts):
                 host_name = 'h{}'.format(host + index + 1)
                 self.addHost(host_name, ip = "10.0.0.{}".format(host + index + 1))
-                self.addLink(host_name, switch_name, bw=10) # (host, switch, bw=10, delay='5ms', loss=10)
+                self.addLink(host_name, switch_name, bw=10, delay='1ms', loss=5)
 
             index = index + hosts
+
+def stream(net, server='h0', client='h1'):
+    server_command = 'cvlc -vvv ~/Downloads/Plebania.mp3 --sout "#standard{access=http,mux=ogg,dst=0.0.0.0:8080}"' #--run-time 40 vlc://quit
+    client_command = 'cvlc http://10.0.0.254:8080'
+
+    h0, h1 = net.get('h0', 'h1')
+
+    print('Executing command on server: ')
+    h0.cmd("sed -i 's/geteuid/getppid/' /usr/bin/vlc")
+    result_srv = h0.cmd(server_command)
+    print(result_srv)
+
+    #print('Executing command on client: ')
+    #h1.cmd("sed -i 's/geteuid/getppid/' /usr/bin/vlc")
+    #result_cli = h1.cmd(client_command)
+    #print(result_cli)
+    print('Commands on h0, h1 FINISHED')
+
 
 
 if __name__ == '__main__':
@@ -54,7 +73,9 @@ if __name__ == '__main__':
 
     net.addNAT().configDefault()
     net.start()
-    net.pingAll()
+    #net.pingAll()
+    #stream(net)
     CLI(net)
-
     net.stop()
+    os.system("sudo mn -c")
+    info("*** You've successfully exited mininet\n")
