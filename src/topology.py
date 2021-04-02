@@ -12,7 +12,7 @@ import os, sys
 
 
 class TreeTopology(Topo):
-    def __init__(self, switches = 2, hosts = 5):
+    def __init__(self, switches, hosts):
         Topo.__init__(self)
 
         self.addSwitch('s0') # main switch
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     s = 2
-    h = 5
+    h = 1
 
     if args.switches:
         s = int(args.switches)

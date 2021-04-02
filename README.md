@@ -73,7 +73,7 @@ To install VLC run command: `sudo apt-get install vlc`
 ### On server: <br/><br/>
 `cvlc -vvv <path-to-file>.mp3 --sout "#standard{access=<access>,mux=<mux>,dst=<ip address>:<port>}" --run-time <time-in-seconds> vlc://quit`
 
-eg.: `cvlc -vvv ../resources/audio.mp3 --sout "#standard{access=http,mux=ogg,dst=0.0.0.0:8080}"' #--run-time 40 vlc://quit`
+eg.: `cvlc -vvv ../resources/audio.mp3 --sout "#standard{access=http,mux=ogg,dst=0.0.0.0:8080}" --run-time 40 vlc://quit`
 
 ### On client: <br/><br/>
 `cvlc http://<ip address>:<port>`  
