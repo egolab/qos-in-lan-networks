@@ -27,7 +27,7 @@ class TreeTopology(Topo):
 
             for host in range(hosts):
                 host_name = 'h{}'.format(host + index + 1)
-                self.addHost(host_name, ip = '10.0.0.{}''.format(host + index + 1))
+                self.addHost(host_name, ip = '10.0.0.{}'.format(host + index + 1))
                 self.addLink(host_name, switch_name, bw=10, delay='1ms', loss=5)
 
             index = index + hosts
