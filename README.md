@@ -1,12 +1,17 @@
 # qos-in-lan-networks
 
-## Mininet
-Mininet documentation: http://mininet.org/
+## Prerequisites
 
 It is advisable to run Mininet on Ubuntu 18.04 virtual machine. To install all required software run:
 ```
 make install
 ```
+## Usage
+
+### Mininet
+
+Mininet documentation: http://mininet.org/
+
 
 Script `src/topology.py` creates a custom topology in *Mininet* environment. By default it is build as shown in the picture below:
 
@@ -65,15 +70,14 @@ In Mininet CLI the following commands can be used:
 - `<host> <command>`, eg. `h1 ifconfig` to run command on specific host without using `xterm`
 - `exit` to exit Mininet CLI
 
-## VLC
-To install VLC run command: `sudo apt-get install vlc`
+### VLC
 
-### On server: <br/><br/>
+#### On server: <br/><br/>
 `cvlc -vvv <path-to-file>.mp3 --sout "#standard{access=<access>,mux=<mux>,dst=<ip address>:<port>}" --run-time <time-in-seconds> vlc://quit`
 
 eg.: `cvlc -vvv ../resources/audio.mp3 --sout "#standard{access=http,mux=ogg,dst=0.0.0.0:8080}"' #--run-time 40 vlc://quit`
 
-### On client: <br/><br/>
+#### On client: <br/><br/>
 `cvlc http://<ip address>:<port>`  
 
 eg.: `cvlc http://10.0.0.254:8080`
