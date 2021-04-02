@@ -3,17 +3,15 @@
 ## Mininet
 Mininet documentation: http://mininet.org/
 
-It is advisable to run Mininet on Ubuntu 18.04 virtual machine. To install Mininet run the following commands:
+It is advisable to run Mininet on Ubuntu 18.04 virtual machine. To install all required software run:
 ```
-sudo apt-get install mininet -y
-git clone git://github.com/mininet/mininet
-mininet/util/install.sh -a
+make install
 ```
 
 Script `src/topology.py` creates a custom topology in *Mininet* environment. By default it is build as shown in the picture below:
 
 <p align="center">
-  <img src="resources/topology.png" width="60%">
+  <img src="resources/docs/topology.png" width="60%">
 </p>
 
 To run the topology with default parameters use the following command: <br/><br/>
