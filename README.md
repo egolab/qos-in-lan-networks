@@ -3,7 +3,7 @@
 ## Prerequisites
 
 It is advisable to run Mininet on Ubuntu 18.04 virtual machine. To install all required software run:
-```
+```shell
 make install
 ```
 ## Usage
