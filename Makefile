@@ -8,5 +8,8 @@ install:
 run:
 	sudo python src/topology.py
 
-clean:
+clear:
 	rm -rf mininet oflops oftest openflow pox
+
+clean:
+	sudo mn -c
