@@ -6,6 +6,10 @@ It is advisable to run Mininet on Ubuntu 18.04 virtual machine. To install all r
 ```shell
 make install
 ```
+If you don't have make run:
+```shell
+sudo apt install make
+```
 ## Usage
 
 ### Mininet
