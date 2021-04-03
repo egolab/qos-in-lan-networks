@@ -8,7 +8,7 @@ from mininet.node import Controller
 from mininet.node import CPULimitedHost, Host
 from mininet.link import TCLink
 import argparse
-import os, sys
+import os, sys, time
 
 
 class TreeTopology(Topo):
@@ -33,19 +33,22 @@ class TreeTopology(Topo):
             index = index + hosts
 
 
-def stream(net, server='h0', client='h1'):
+def stream(net, hosts):
     server_command = 'cvlc ./samples/audio.mp3 --sout "#standard{access=http,mux=ogg,dst=0.0.0.0:8080}" --run-time 30 vlc://quit &'
     client_command = 'cvlc http://10.0.0.254:8080 &'
+    run_as_root = "sed -i 's/geteuid/getppid/' /usr/bin/vlc"
 
-    h0, h1 = net.get(server, client)
-
-    print('Executing command on server: ')
-    h0.cmd("sed -i 's/geteuid/getppid/' /usr/bin/vlc") # to run vlc as root
+    info('*** Starting VLC server...\n')
+    h0 = net.get('h0')
+    h0.cmd(run_as_root)
     h0.cmd(server_command)
 
-    print('Executing command on client: ')
-    h1.cmd("sed -i 's/geteuid/getppid/' /usr/bin/vlc")
-    h1.cmd(client_command)
+    info('*** Starting VLC clients...\n')
+    time.sleep(5)
+
+    for h in range(hosts):
+        host = net.get('h{}'.format(h+1))
+        host.cmd(client_command)
 
 
 if __name__ == '__main__':
@@ -63,6 +66,7 @@ if __name__ == '__main__':
     if args.hosts:
         h = int(args.hosts)
 
+
     setLogLevel('info')
     topo = TreeTopology(switches = s, hosts = h)
     net = Mininet(topo=topo, link=TCLink, host=CPULimitedHost)
@@ -70,8 +74,7 @@ if __name__ == '__main__':
 
     net.addNAT().configDefault()
     net.start()
-    #net.pingAll()
-    stream(net)
+    stream(net, hosts=h)
     CLI(net)
 
     net.stop()
