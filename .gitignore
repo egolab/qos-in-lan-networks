@@ -1,2 +1,7 @@
 .vscode/*
 **/.idea/
+/mininet
+/oflops
+/oftest
+/openflow
+/pox

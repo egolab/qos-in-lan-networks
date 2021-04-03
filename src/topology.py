@@ -34,10 +34,10 @@ class TreeTopology(Topo):
 
 
 def stream(net, server='h0', client='h1'):
-    server_command = 'cvlc ../resources/audio.mp3 --sout "#standard{access=http,mux=ogg,dst=0.0.0.0:8080}" --run-time 30 vlc://quit &'
+    server_command = 'cvlc ./samples/audio.mp3 --sout "#standard{access=http,mux=ogg,dst=0.0.0.0:8080}" --run-time 30 vlc://quit &'
     client_command = 'cvlc http://10.0.0.254:8080 &'
 
-    h0, h1 = net.get('h0', 'h1')
+    h0, h1 = net.get(server, client)
 
     print('Executing command on server: ')
     h0.cmd("sed -i 's/geteuid/getppid/' /usr/bin/vlc") # to run vlc as root
