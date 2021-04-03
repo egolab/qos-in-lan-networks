@@ -1,4 +1,4 @@
-.PHONY: install run clean
+.PHONY: install run clear clean
 
 install:
 	sudo apt install python git mininet -y vlc*
