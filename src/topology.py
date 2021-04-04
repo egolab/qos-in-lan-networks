@@ -9,6 +9,7 @@ from mininet.node import CPULimitedHost, Host
 from mininet.link import TCLink
 import argparse
 import os, sys, time
+import os.path
 
 
 class TreeTopology(Topo):
@@ -75,10 +76,12 @@ if __name__ == '__main__':
 
     if args.file:
         file = args.file
+        if not os.path.isfile(file):
+            print ("File doesn't exist")
+            exit()
 
     if args.duration:
         duration = int(args.duration)
-
 
     setLogLevel('info')
     topo = TreeTopology(switches = switches, hosts = hosts)
