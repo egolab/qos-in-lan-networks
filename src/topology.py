@@ -35,7 +35,7 @@ class TreeTopology(Topo):
 
 def stream(net, hosts, path, duration):
     delay = 5
-    server_command = 'cvlc ./samples/{path} --sout "#standard{{access=http,mux=ogg,dst=0.0.0.0:8080}}" --run-time {duration} vlc://quit &'.format(path = path, duration = str(duration + delay))
+    server_command = 'cvlc {path} --sout "#standard{{access=http,mux=ogg,dst=0.0.0.0:8080}}" --run-time {duration} vlc://quit &'.format(path = path, duration = str(duration + delay))
     client_command = 'cvlc http://10.0.0.254:8080 &'
     run_as_root = "sed -i 's/geteuid/getppid/' /usr/bin/vlc"
 
@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     switches = 2
     hosts = 1
-    file = 'audio.mp3'
+    file = './samples/audio.mp3'
     duration = 30
 
     if args.switches:

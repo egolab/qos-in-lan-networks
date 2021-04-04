@@ -69,15 +69,16 @@ In Mininet CLI the following commands can be used:
 
 ### VLC
 
-#### On server: <br/><br/>
+#### On server:
 ```shell
 cvlc -vvv <path-to-file>.mp3 --sout "#standard{access=<access>,mux=<mux>,dst=<ip address>:<port>}" --run-time <time-in-seconds> vlc://quit
+
+cvlc -vvv ./samples/audio.mp3 --sout "#standard{access=http,mux=ogg,dst=0.0.0.0:8080}" --run-time 40 vlc://quit
 ```
+
+#### On client:
 ```shell
-cvlc -vvv ../resources/audio.mp3 --sout "#standard{access=http,mux=ogg,dst=0.0.0.0:8080}" --run-time 40 vlc://quit
+cvlc http://<ip address>:<port>
+
+cvlc http://10.0.0.254:8080
 ```
-
-#### On client: <br/><br/>
-`cvlc http://<ip address>:<port>`  
-
-eg.: `cvlc http://10.0.0.254:8080`
