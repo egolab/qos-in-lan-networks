@@ -23,43 +23,36 @@ Script `src/topology.py` creates a custom topology in *Mininet* environment. By 
   <img src="resources/docs/topology.png" width="60%">
 </p>
 
-To run the topology with default parameters use the following command: <br/><br/>
-`sudo python src/topology.py`
+To run the topology with default parameters use the following command:
+```shell
+sudo python src/topology.py
+```
 
-To customize the number of switches and hosts run: <br/><br/>
-`sudo python src/topology.py --sw=5 --hosts=2`, <br/><br/>
-where `--sw` means number of switches (apart from the Main Switch) and `--hosts` means the number of hosts connected to each switch. By default `--sw=2 --hosts=5`. Also, it is possible to modify link bandwidth, delay and loss.
+Command line parameters:
+- `--switches` - number of switches apart from the Main Switch, default `2`
+- `--hosts` - number of hosts connected to each switch, default `1`
+- `--file` - file that will be used for streaming, default `audio.mp3`
+- `--duration` - streaming duration time in seconds, default `30s`
 
 The output should be similar to the one below:
-```
+```shell
 *** Creating network
 *** Adding controller
 *** Adding hosts:
-h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10
+h0 h1 h2
 *** Adding switches:
 s0 s1 s2
 *** Adding links:
-(h1, s1) (h2, s1) (h3, s1) (h4, s1) (h5, s1) (h6, s2) (h7, s2) (h8, s2) (h9, s2) (h10, s2) (s0, h0) (s0, s1) (s0, s2)
+(10.00Mbit 1ms delay 5.00000% loss) (10.00Mbit 1ms delay 5.00000% loss) (h1, s1) (10.00Mbit 1ms delay 5.00000% loss) (10.00Mbit 1ms delay 5.00000% loss) (h2, s2) (s0, h0) (s0, s1) (s0, s2)
 *** Configuring hosts
-h0 (cfs -1/100000us) h1 (cfs -1/100000us) h2 (cfs -1/100000us) h3 (cfs -1/100000us) h4 (cfs -1/100000us) h5 (cfs -1/100000us) h6 (cfs -1/100000us) h7 (cfs -1/100000us) h8 (cfs -1/100000us) h9 (cfs -1/100000us) h10 (cfs -1/100000us)
+h0 (cfs -1/100000us) h1 (cfs -1/100000us) h2 (cfs -1/100000us)
 *** Starting controller
 c0 c
 *** Starting 3 switches
-s0 s1 s2 ...
-*** Ping: testing ping reachability
-h0 -> h1 h2 h3 h4 h5 h6 h7 h8 h9 h10 nat0
-h1 -> h0 h2 h3 h4 h5 h6 h7 h8 h9 h10 nat0
-h2 -> h0 h1 h3 h4 h5 h6 h7 h8 h9 h10 nat0
-h3 -> h0 h1 h2 h4 h5 h6 h7 h8 h9 h10 nat0
-h4 -> h0 h1 h2 h3 h5 h6 h7 h8 h9 h10 nat0
-h5 -> h0 h1 h2 h3 h4 h6 h7 h8 h9 h10 nat0
-h6 -> h0 h1 h2 h3 h4 h5 h7 h8 h9 h10 nat0
-h7 -> h0 h1 h2 h3 h4 h5 h6 h8 h9 h10 nat0
-h8 -> h0 h1 h2 h3 h4 h5 h6 h7 h9 h10 nat0
-h9 -> h0 h1 h2 h3 h4 h5 h6 h7 h8 h10 nat0
-h10 -> h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 nat0
-nat0 -> h0 h1 h2 h3 h4 h5 h6 h7 h8 h9 h10
-*** Results: 0% dropped (132/132 received)
+s0 s1 s2 ...(10.00Mbit 1ms delay 5.00000% loss) (10.00Mbit 1ms delay 5.00000% loss)
+*** Starting VLC server...
+*** Starting VLC clients...
+*** VLC server and clients started
 *** Starting CLI:
 mininet>
 
@@ -77,9 +70,12 @@ In Mininet CLI the following commands can be used:
 ### VLC
 
 #### On server: <br/><br/>
-`cvlc -vvv <path-to-file>.mp3 --sout "#standard{access=<access>,mux=<mux>,dst=<ip address>:<port>}" --run-time <time-in-seconds> vlc://quit`
-
-eg.: `cvlc -vvv ../resources/audio.mp3 --sout "#standard{access=http,mux=ogg,dst=0.0.0.0:8080}" --run-time 40 vlc://quit`
+```shell
+cvlc -vvv <path-to-file>.mp3 --sout "#standard{access=<access>,mux=<mux>,dst=<ip address>:<port>}" --run-time <time-in-seconds> vlc://quit
+```
+```shell
+cvlc -vvv ../resources/audio.mp3 --sout "#standard{access=http,mux=ogg,dst=0.0.0.0:8080}" --run-time 40 vlc://quit
+```
 
 #### On client: <br/><br/>
 `cvlc http://<ip address>:<port>`  

@@ -51,6 +51,8 @@ def stream(net, hosts, path, duration):
         host = net.get('h{}'.format(h + 1))
         host.cmd(client_command)
 
+    info('*** VLC server and clients started\n')
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
