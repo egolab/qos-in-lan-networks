@@ -33,6 +33,18 @@ class TreeTopology(Topo):
 
             index = index + hosts
 
+def background(net, hosts, duration):
+    iperf_start_port = 9000
+    iperf_server_cmd = 'iperf -s -p {port} -i 1 &'
+    iperf_client_cmd = 'iperf -c {ip} -p {port} -t {duration} &'
+
+    h0 = net.get('h0')
+
+    for h in range(hosts):
+        h0.cmd(iperf_server_cmd.format(port = iperf_start_port + hosts + h + 1))
+        host = net.get('h{}'.format(h + hosts + 1))
+        # print(h0.IP(), host.IP(), iperf_start_port + hosts + h + 1, str(duration))
+        host.cmd(iperf_client_cmd.format(ip = h0.IP(), port = iperf_start_port + hosts + h + 1, duration = str(2 * duration)))
 
 def stream(net, hosts, path, duration):
     delay = 5
@@ -90,6 +102,12 @@ if __name__ == '__main__':
 
     net.addNAT().configDefault()
     net.start()
+
+    s0 = net.get('s0')
+    s0.cmd('tcpdump -i {intf} -w jows-0.pcap &'.format(intf = s0.intf()))
+
+
+    background(net, hosts = hosts, duration = duration)
     stream(net, hosts = hosts, path = file, duration = duration)
     CLI(net)
 

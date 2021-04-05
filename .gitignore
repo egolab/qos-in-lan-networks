@@ -5,3 +5,4 @@
 /oftest
 /openflow
 /pox
+*.pcap
