@@ -18,7 +18,7 @@ class TreeTopology(Topo):
 
         self.addSwitch('s0') # main switch
         self.addHost('h0', ip = '10.0.0.254')
-        self.addLink('s0', 'h0')
+        self.addLink('s0', 'h0', bw = 10)
         index = 0
 
         for switch in range(switches):
@@ -29,7 +29,7 @@ class TreeTopology(Topo):
             for host in range(hosts):
                 host_name = 'h{}'.format(host + index + 1)
                 self.addHost(host_name, ip = '10.0.0.{}'.format(host + index + 1))
-                self.addLink(host_name, switch_name, bw = 10, delay = '1ms', loss = 5)
+                self.addLink(host_name, switch_name, bw = 10, delay = '1ms', loss = 0)
 
             index = index + hosts
 
@@ -103,8 +103,8 @@ if __name__ == '__main__':
     net.addNAT().configDefault()
     net.start()
 
-    s0 = net.get('s0')
-    s0.cmd('tcpdump -i {intf} -w jows-0.pcap &'.format(intf = s0.intf()))
+    h0 = net.get('h0')
+    h0.cmd('tcpdump -i {intf} -w jows-0.pcap &'.format(intf = h0.intf()))
 
 
     background(net, hosts = hosts, duration = duration)
