@@ -36,21 +36,23 @@ class TreeTopology(Topo):
 
 def stream(net, hosts, path, duration):
     delay = 5
-    server_command = 'cvlc {path} --sout "#standard{{access=http,mux=ogg,dst=0.0.0.0:8080}}" --run-time {duration} vlc://quit &'.format(path = path, duration = str(duration + delay))
-    client_command = 'cvlc http://10.0.0.254:8080 &'
     run_as_root = "sed -i 's/geteuid/getppid/' /usr/bin/vlc"
+    server_command = 'cvlc {path} --sout "#rtp{{dst=10.0.0.{host_number},port=500{host_number}}}" --run-time {duration} vlc://quit &'
+    client_command = 'cvlc rtp://@:500{host_number} &'
 
-    info('*** Starting VLC server...\n')
+    info('*** Starting VLC servers...\n')
     h0 = net.get('h0')
     h0.cmd(run_as_root)
-    h0.cmd(server_command)
+
+    for h in range(hosts):
+        h0.cmd(server_command.format(path = path, host_number = h + 1, duration = str(duration + delay)))
 
     info('*** Starting VLC clients...\n')
     time.sleep(delay)
 
     for h in range(hosts):
         host = net.get('h{}'.format(h + 1))
-        host.cmd(client_command)
+        host.cmd(client_command.format(host_number = h + 1))
 
     info('*** VLC server and clients started\n')
 
@@ -85,8 +87,7 @@ if __name__ == '__main__':
 
     setLogLevel('info')
     topo = TreeTopology(switches = switches, hosts = hosts)
-    net = Mininet(topo = topo, link = TCLink, host = CPULimitedHost)
-    c = net.addController('c', controller = Controller, ip = '127.0.0.1', port = 6633)
+    net = Mininet(topo = topo, controller=Controller, link = TCLink, host = CPULimitedHost)
 
     net.addNAT().configDefault()
     net.start()
