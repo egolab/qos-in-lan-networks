@@ -3,7 +3,7 @@
 from mininet.topo import Topo
 from mininet.cli import CLI
 from mininet.net import Mininet
-from mininet.log import setLogLevel, info
+from mininet.log import setLogLevel, info, error
 from mininet.node import Controller
 from mininet.node import CPULimitedHost, Host
 from mininet.link import TCLink
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     if args.file:
         file = args.file
         if not os.path.isfile(file):
-            print ("File doesn't exist")
+            error('File doesn\'t exist\n')
             exit()
 
     if args.duration:
