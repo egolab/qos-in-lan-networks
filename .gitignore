@@ -6,3 +6,4 @@
 /openflow
 /pox
 *.pcap
+/results

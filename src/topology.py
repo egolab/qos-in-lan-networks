@@ -18,7 +18,7 @@ class TreeTopology(Topo):
 
         self.addSwitch('s0') # main switch
         self.addHost('h0', ip = '10.0.0.254')
-        self.addLink('s0', 'h0', bw = 10)
+        self.addLink('s0', 'h0', bw = 1)
         index = 0
 
         for switch in range(switches):
@@ -43,41 +43,37 @@ def background(net, hosts, duration):
     for h in range(hosts):
         h0.cmd(iperf_server_cmd.format(port = iperf_start_port + hosts + h + 1))
         host = net.get('h{}'.format(h + hosts + 1))
-        # print(h0.IP(), host.IP(), iperf_start_port + hosts + h + 1, str(duration))
-        host.cmd(iperf_client_cmd.format(ip = h0.IP(), port = iperf_start_port + hosts + h + 1, duration = str(2 * duration)))
+        host.cmd(iperf_client_cmd.format(ip = h0.IP(), port = iperf_start_port + hosts + h + 1, duration = str(duration)))
 
-def stream(net, hosts, path, duration):
-    delay = 5
-    vlc_server_cmd = 'cvlc {path} --sout "#standard{{access=http,mux=ogg,dst=0.0.0.0:8080}}" --run-time {duration} vlc://quit &'.format(path = path, duration = str(duration + delay))
-    vlc_client_cmd = 'cvlc http://10.0.0.254:8080 &'
-    run_as_root = "sed -i 's/geteuid/getppid/' /usr/bin/vlc"
+    print("Background started")
 
-    info('*** Starting VLC server...\n')
+def stream(net, hosts, duration):
+    warm_up = 5
+    iperf_start_port = 8000
+    iperf_server_cmd = 'iperf -s -p {port} -i 1 -u -y C | tee results/h{host_id}.out &'
+    iperf_client_cmd = 'iperf -c {ip} -p {port} -t {duration} -u -b 200000 &'
+
+    time.sleep(warm_up)
+
     h0 = net.get('h0')
-    h0.cmd(run_as_root)
-    h0.cmd(vlc_server_cmd)
-
-    info('*** Starting VLC clients...\n')
-    time.sleep(delay)
 
     for h in range(hosts):
+        h0.cmd(iperf_server_cmd.format(port = iperf_start_port + h + 1, host_id = h + 1))
         host = net.get('h{}'.format(h + 1))
-        host.cmd(vlc_client_cmd)
+        host.cmd(iperf_client_cmd.format(ip = h0.IP(), port = iperf_start_port + h + 1, duration = str(duration - warm_up)))
 
-    info('*** VLC server and clients started\n')
+    print("Streaming started")
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--switches', help = 'Number of Switches')
     parser.add_argument('--hosts', help = 'Number of Hosts connected to each switch')
-    parser.add_argument('--file', help = 'Audio file that will be streamed')
     parser.add_argument('--duration', help = 'Streaming duration')
     args = parser.parse_args()
 
     switches = 2
     hosts = 1
-    file = './samples/audio.mp3'
     duration = 30
 
     if args.switches:
@@ -85,12 +81,6 @@ if __name__ == '__main__':
 
     if args.hosts:
         hosts = int(args.hosts)
-
-    if args.file:
-        file = args.file
-        if not os.path.isfile(file):
-            print ("File doesn't exist")
-            exit()
 
     if args.duration:
         duration = int(args.duration)
@@ -107,9 +97,20 @@ if __name__ == '__main__':
     h0.cmd('tcpdump -i {intf} -w jows-0.pcap &'.format(intf = h0.intf()))
 
 
+    s0 = net.get('s0')
+    print(s0.cmd('./src/fifo.sh'))
+    
+
+
     background(net, hosts = hosts, duration = duration)
-    stream(net, hosts = hosts, path = file, duration = duration)
-    CLI(net)
+    stream(net, hosts = hosts, duration = duration)
+    
+    print("Processing...")
+    time.sleep(duration + 5)
+    
+    for h in range(hosts):
+        os.system('./src/terminator.sh {host_id}'.format(host_id=h+1))
+    print("Closing...")
 
     net.stop()
     os.system('sudo mn -c')
