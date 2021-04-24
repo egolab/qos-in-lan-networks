@@ -3,7 +3,7 @@
 from mininet.topo import Topo
 from mininet.cli import CLI
 from mininet.net import Mininet
-from mininet.log import setLogLevel, info
+from mininet.log import setLogLevel, warn
 from mininet.node import Controller
 from mininet.node import CPULimitedHost, Host
 from mininet.link import TCLink
@@ -45,7 +45,7 @@ def background(net, hosts, duration):
         host = net.get('h{}'.format(h + hosts + 1))
         host.cmd(iperf_client_cmd.format(ip = h0.IP(), port = iperf_start_port + hosts + h + 1, duration = str(duration)))
 
-    info("*** Background started\n")
+    warn("*** Background started\n")
 
 def stream(net, hosts, duration):
     warm_up = 5
@@ -62,7 +62,7 @@ def stream(net, hosts, duration):
         host = net.get('h{}'.format(h + 1))
         host.cmd(iperf_client_cmd.format(ip = h0.IP(), port = iperf_start_port + h + 1, duration = str(duration - warm_up)))
 
-    info("*** Streaming started\n")
+    warn("*** Streaming started\n")
 
 def setUpQueue(net, queueType):
     s0 = net.get('s0')
@@ -70,16 +70,19 @@ def setUpQueue(net, queueType):
     if queueType == 'fifo':
         s0.cmd('./src/fifo.sh')
     else :
-        info('*** Queue not defined!\n')
+        warn('*** Queue not defined!\n')
         tearDown(net)
         sys.exit(1)
 
-    info('*** Queue type: {queueType}\n'.format(queueType = queueType))
+    warn('*** Queue type: {queueType}\n'.format(queueType = queueType))
 
 
 def terminateOutput(hosts):
+    warn('*** Output files:\n')
     for h in range(hosts):
-        os.system('./src/terminator.sh {host_id}'.format(host_id=h+1))
+        warn('\tresults/h{host_id}.csv\n'.format(host_id = h + 1))
+        os.system('./src/terminator.sh {host_id} > /dev/null 2>&1'.format(host_id = h + 1))
+        os.remove('results/h{host_id}.out'.format(host_id = h + 1))
 
 def setUpTopology(switches, hosts):
     topo = TreeTopology(switches = switches, hosts = hosts)
@@ -91,7 +94,7 @@ def setUpTopology(switches, hosts):
 
 def tearDown(net):
     net.stop()
-    os.system('sudo mn -c')
+    os.system('sudo mn -c > /dev/null 2>&1')
 
 def parseArguments():
     parser = argparse.ArgumentParser()
@@ -124,7 +127,7 @@ if __name__ == '__main__':
    
     (switches, hosts, duration, queueType) = parseArguments()
 
-    setLogLevel('info')
+    setLogLevel('warning')
     
     net = setUpTopology(switches, hosts)
 
@@ -136,13 +139,13 @@ if __name__ == '__main__':
     background(net, hosts = hosts, duration = duration)
     stream(net, hosts = hosts, duration = duration)
     
-    info("*** Processing...\n")
+    warn("*** Processing...\n")
     time.sleep(duration + 5)
     
-    info("*** Closing...\n")
+    warn("*** Closing...\n")
 
     tearDown(net)
 
     terminateOutput(hosts)
 
-    info('*** You\'ve successfully exited mininet\n')
+    warn('*** You\'ve successfully exited mininet\n')
