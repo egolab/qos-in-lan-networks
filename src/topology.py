@@ -98,9 +98,9 @@ if __name__ == '__main__':
 
 
     s0 = net.get('s0')
+
     print(s0.cmd('./src/fifo.sh'))
     
-
 
     background(net, hosts = hosts, duration = duration)
     stream(net, hosts = hosts, duration = duration)
@@ -108,10 +108,12 @@ if __name__ == '__main__':
     print("Processing...")
     time.sleep(duration + 5)
     
-    for h in range(hosts):
-        os.system('./src/terminator.sh {host_id}'.format(host_id=h+1))
     print("Closing...")
 
     net.stop()
     os.system('sudo mn -c')
+
+    for h in range(hosts):
+        os.system('./src/terminator.sh {host_id}'.format(host_id=h+1))
+
     info('*** You\'ve successfully exited mininet\n')
