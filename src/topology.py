@@ -45,7 +45,7 @@ def background(net, hosts, duration):
         host = net.get('h{}'.format(h + hosts + 1))
         host.cmd(iperf_client_cmd.format(ip = h0.IP(), port = iperf_start_port + hosts + h + 1, duration = str(duration)))
 
-    print("Background started")
+    info("*** Background started\n")
 
 def stream(net, hosts, duration):
     warm_up = 5
@@ -62,19 +62,49 @@ def stream(net, hosts, duration):
         host = net.get('h{}'.format(h + 1))
         host.cmd(iperf_client_cmd.format(ip = h0.IP(), port = iperf_start_port + h + 1, duration = str(duration - warm_up)))
 
-    print("Streaming started")
+    info("*** Streaming started\n")
+
+def setUpQueue(net, queueType):
+    s0 = net.get('s0')
+
+    if queueType == 'fifo':
+        s0.cmd('./src/fifo.sh')
+    else :
+        info('*** Queue not defined!\n')
+        tearDown(net)
+        sys.exit(1)
+
+    info('*** Queue type: {queueType}\n'.format(queueType = queueType))
 
 
-if __name__ == '__main__':
+def terminateOutput(hosts):
+    for h in range(hosts):
+        os.system('./src/terminator.sh {host_id}'.format(host_id=h+1))
+
+def setUpTopology(switches, hosts):
+    topo = TreeTopology(switches = switches, hosts = hosts)
+    net = Mininet(topo = topo, link = TCLink, host = CPULimitedHost)
+    c = net.addController('c', controller = Controller, ip = '127.0.0.1', port = 6633)
+    net.addNAT().configDefault()
+    net.start()
+    return net
+
+def tearDown(net):
+    net.stop()
+    os.system('sudo mn -c')
+
+def parseArguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--switches', help = 'Number of Switches')
     parser.add_argument('--hosts', help = 'Number of Hosts connected to each switch')
     parser.add_argument('--duration', help = 'Streaming duration')
+    parser.add_argument('--queue', help = 'Queue type [fifo]')
     args = parser.parse_args()
 
     switches = 2
     hosts = 1
     duration = 30
+    queueType = 'fifo'
 
     if args.switches:
         switches = int(args.switches)
@@ -85,35 +115,34 @@ if __name__ == '__main__':
     if args.duration:
         duration = int(args.duration)
 
-    setLogLevel('info')
-    topo = TreeTopology(switches = switches, hosts = hosts)
-    net = Mininet(topo = topo, link = TCLink, host = CPULimitedHost)
-    c = net.addController('c', controller = Controller, ip = '127.0.0.1', port = 6633)
+    if args.queue:
+        queueType = str(args.queue)
 
-    net.addNAT().configDefault()
-    net.start()
+    return (switches, hosts, duration, queueType)
+
+if __name__ == '__main__':
+   
+    (switches, hosts, duration, queueType) = parseArguments()
+
+    setLogLevel('info')
+    
+    net = setUpTopology(switches, hosts)
 
     h0 = net.get('h0')
     h0.cmd('tcpdump -i {intf} -w jows-0.pcap &'.format(intf = h0.intf()))
 
-
-    s0 = net.get('s0')
-
-    print(s0.cmd('./src/fifo.sh'))
-    
+    setUpQueue(net, queueType)
 
     background(net, hosts = hosts, duration = duration)
     stream(net, hosts = hosts, duration = duration)
     
-    print("Processing...")
+    info("*** Processing...\n")
     time.sleep(duration + 5)
     
-    print("Closing...")
+    info("*** Closing...\n")
 
-    net.stop()
-    os.system('sudo mn -c')
+    tearDown(net)
 
-    for h in range(hosts):
-        os.system('./src/terminator.sh {host_id}'.format(host_id=h+1))
+    terminateOutput(hosts)
 
     info('*** You\'ve successfully exited mininet\n')
