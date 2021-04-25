@@ -76,7 +76,6 @@ def setUpQueue(net, queueType):
 
     warn('*** Queue type: {queueType}\n'.format(queueType = queueType))
 
-
 def terminateOutput(hosts):
     warn('*** Output files:\n')
     for h in range(hosts):
@@ -123,29 +122,30 @@ def parseArguments():
 
     return (switches, hosts, duration, queueType)
 
+
 if __name__ == '__main__':
-   
+
     (switches, hosts, duration, queueType) = parseArguments()
 
     setLogLevel('warning')
-    
     net = setUpTopology(switches, hosts)
 
     h0 = net.get('h0')
     h0.cmd('tcpdump -i {intf} -w jows-0.pcap &'.format(intf = h0.intf()))
 
+    warn('\n*** Simulation time: {duration} seconds\n'.format(duration = duration))
     setUpQueue(net, queueType)
 
     background(net, hosts = hosts, duration = duration)
     stream(net, hosts = hosts, duration = duration)
-    
+
     warn("*** Processing...\n")
     time.sleep(duration + 5)
-    
+
     warn("*** Closing...\n")
 
     tearDown(net)
 
     terminateOutput(hosts)
 
-    warn('*** You\'ve successfully exited mininet\n')
+    warn('*** Successfully exited mininet\n')
