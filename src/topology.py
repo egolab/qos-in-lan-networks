@@ -18,7 +18,7 @@ class TreeTopology(Topo):
 
         self.addSwitch('s0') # main switch
         self.addHost('h0', ip = '10.0.0.254')
-        self.addLink('s0', 'h0', bw = 1)
+        self.addLink('s0', 'h0', bw = 2)
         index = 0
 
         for switch in range(switches):
@@ -35,8 +35,8 @@ class TreeTopology(Topo):
 
 def background(net, hosts, duration):
     iperf_start_port = 9000
-    iperf_server_cmd = 'iperf -s -p {port} -i 1 &'
-    iperf_client_cmd = 'iperf -c {ip} -p {port} -t {duration} &'
+    iperf_server_cmd = 'iperf -s -p {port} -i 1 -S 0x20 &'
+    iperf_client_cmd = 'iperf -c {ip} -p {port} -t {duration} -S 0x20 &'
 
     h0 = net.get('h0')
 
@@ -50,8 +50,8 @@ def background(net, hosts, duration):
 def stream(net, hosts, duration):
     warm_up = 5
     iperf_start_port = 8000
-    iperf_server_cmd = 'iperf -s -p {port} -i 1 -u -y C | tee results/h{host_id}.out &'
-    iperf_client_cmd = 'iperf -c {ip} -p {port} -t {duration} -u -b 200000 &'
+    iperf_server_cmd = 'iperf -s -p {port} -i 1 -u -S 0x10 -y C | tee results/h{host_id}.out &'
+    iperf_client_cmd = 'iperf -c {ip} -p {port} -t {duration} -u -S 0x10 -b 200000 &'
 
     time.sleep(warm_up)
 
@@ -65,10 +65,16 @@ def stream(net, hosts, duration):
     warn("*** Streaming started\n")
 
 def setUpQueue(net, queueType):
-    s0 = net.get('s0')
+    h0 = net.get('h0')
 
     if queueType == 'fifo':
-        s0.cmd('./src/fifo.sh')
+        h0.cmd('./src/fifo.sh')
+    elif queueType == 'htb':
+        h0.cmd('./src/htb.sh')
+    elif queueType == 'sfq':
+        h0.cmd('./src/sfq.sh')
+    elif queueType == 'none':
+        pass
     else :
         warn('*** Queue not defined!\n')
         tearDown(net)
@@ -77,11 +83,11 @@ def setUpQueue(net, queueType):
     warn('*** Queue type: {queueType}\n'.format(queueType = queueType))
 
 
-def terminateOutput(hosts):
+def terminateOutput(hosts, queueType):
     warn('*** Output files:\n')
     for h in range(hosts):
         warn('\tresults/h{host_id}.csv\n'.format(host_id = h + 1))
-        os.system('./src/terminator.sh {host_id} > /dev/null 2>&1'.format(host_id = h + 1))
+        os.system('./src/terminator.sh {host_id} {queue_type} > /dev/null 2>&1'.format(host_id = h + 1, queue_type = queueType))
         os.remove('results/h{host_id}.out'.format(host_id = h + 1))
 
 def setUpTopology(switches, hosts):
@@ -127,14 +133,16 @@ if __name__ == '__main__':
    
     (switches, hosts, duration, queueType) = parseArguments()
 
-    setLogLevel('warning')
+    setLogLevel('info')
     
     net = setUpTopology(switches, hosts)
 
+    setUpQueue(net, queueType)
+
+    CLI(net)
+
     h0 = net.get('h0')
     h0.cmd('tcpdump -i {intf} -w jows-0.pcap &'.format(intf = h0.intf()))
-
-    setUpQueue(net, queueType)
 
     background(net, hosts = hosts, duration = duration)
     stream(net, hosts = hosts, duration = duration)
@@ -146,6 +154,6 @@ if __name__ == '__main__':
 
     tearDown(net)
 
-    terminateOutput(hosts)
+    terminateOutput(hosts, queueType)
 
     warn('*** You\'ve successfully exited mininet\n')
