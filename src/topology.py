@@ -82,7 +82,6 @@ def setUpQueue(net, queueType):
 
     warn('*** Queue type: {queueType}\n'.format(queueType = queueType))
 
-
 def terminateOutput(hosts, queueType):
     warn('*** Output files:\n')
     for h in range(hosts):
@@ -129,12 +128,13 @@ def parseArguments():
 
     return (switches, hosts, duration, queueType)
 
+
 if __name__ == '__main__':
-   
+
     (switches, hosts, duration, queueType) = parseArguments()
 
-    setLogLevel('info')
-    
+    setLogLevel('warning')
+
     net = setUpTopology(switches, hosts)
 
     setUpQueue(net, queueType)
@@ -146,14 +146,14 @@ if __name__ == '__main__':
 
     background(net, hosts = hosts, duration = duration)
     stream(net, hosts = hosts, duration = duration)
-    
+
     warn("*** Processing...\n")
     time.sleep(duration + 5)
-    
+
     warn("*** Closing...\n")
 
     tearDown(net)
 
     terminateOutput(hosts, queueType)
 
-    warn('*** You\'ve successfully exited mininet\n')
+    warn('*** Successfully exited mininet\n')
