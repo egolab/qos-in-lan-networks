@@ -16,7 +16,7 @@ class TreeTopology(Topo):
     def __init__(self, switches, hosts):
         Topo.__init__(self)
 
-        self.addSwitch('s0') # main switch
+        self.addSwitch('s0')
         self.addHost('h0', ip = '10.0.0.254')
         self.addLink('s0', 'h0', bw = 2)
         index = 0
@@ -65,14 +65,18 @@ def stream(net, hosts, duration):
     warn("*** Streaming started\n")
 
 def setUpQueue(net, queueType):
-    h0 = net.get('h0')
+    s0 = net.get('s0')
 
     if queueType == 'fifo':
-        h0.cmd('./src/fifo.sh')
+        s0.cmd('./src/fifo.sh')
     elif queueType == 'htb':
-        h0.cmd('./src/htb.sh')
+        s0.cmd('./src/htb.sh')
     elif queueType == 'sfq':
-        h0.cmd('./src/sfq.sh')
+        s0.cmd('./src/sfq.sh')
+    elif queueType == 'prio':
+        s0.cmd('./src/prio.sh')
+    elif queueType == 'fq':
+        s0.cmd('./src/fq.sh')
     elif queueType == 'none':
         pass
     else :
@@ -81,11 +85,12 @@ def setUpQueue(net, queueType):
         sys.exit(1)
 
     warn('*** Queue type: {queueType}\n'.format(queueType = queueType))
+    warn('\ntc qdisc show:\n', s0.cmd('tc qdisc show'), '\n')
 
 def terminateOutput(hosts, queueType):
     warn('*** Output files:\n')
     for h in range(hosts):
-        warn('\tresults/h{host_id}.csv\n'.format(host_id = h + 1))
+        warn('\tresults/h{host_id}-{queueType}.csv\n'.format(host_id = h + 1, queueType = queueType))
         os.system('./src/terminator.sh {host_id} {queue_type} > /dev/null 2>&1'.format(host_id = h + 1, queue_type = queueType))
         os.remove('results/h{host_id}.out'.format(host_id = h + 1))
 
@@ -133,16 +138,16 @@ if __name__ == '__main__':
 
     (switches, hosts, duration, queueType) = parseArguments()
 
-    setLogLevel('warning')
+    setLogLevel('info')
 
     net = setUpTopology(switches, hosts)
+    warn('\n*** Simulation time: {duration} seconds\n'.format(duration = duration))
 
     setUpQueue(net, queueType)
-
     CLI(net)
 
-    h0 = net.get('h0')
-    h0.cmd('tcpdump -i {intf} -w jows-0.pcap &'.format(intf = h0.intf()))
+    s0 = net.get('s0')
+    s0.cmd('tcpdump -i {intf} -w jows-0.pcap &'.format(intf = 's0-eth1'))
 
     background(net, hosts = hosts, duration = duration)
     stream(net, hosts = hosts, duration = duration)

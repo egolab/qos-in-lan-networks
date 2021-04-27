@@ -1,6 +1,6 @@
 #!/bin/bash
 
-tc qdisc del dev h0-eth0 root
+tc qdisc del dev s0-eth1 root
 
-tc qdisc add dev eth0 handle 1:0 root dsmark indices 1 default_index 0
-tc qdisc add dev eth0 handle 2:0 parent 1:0 sfq perturb 10
+tc qdisc add dev s0-eth1 root handle 1: tbf rate 250kbps burst 1600 latency 100000
+tc qdisc add dev s0-eth1 parent 1:1 handle 10: sfq perturb 10
