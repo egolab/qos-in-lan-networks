@@ -138,7 +138,7 @@ if __name__ == '__main__':
 
     (switches, hosts, duration, queueType) = parseArguments()
 
-    setLogLevel('info')
+    setLogLevel('warn')
 
     net = setUpTopology(switches, hosts)
     warn('\n*** Simulation time: {duration} seconds\n'.format(duration = duration))

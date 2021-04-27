@@ -2,7 +2,6 @@
 
 tc qdisc del dev s0-eth1 root
 
-
 tc qdisc add dev s0-eth1 root handle 1: prio
 
 tc qdisc add dev s0-eth1 parent 1:1 handle 10: tbf rate 200kbps burst 1600 latency 30000
