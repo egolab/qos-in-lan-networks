@@ -20,7 +20,7 @@ Mininet documentation: http://mininet.org/
 Script `src/topology.py` creates a custom topology in *Mininet* environment. By default it is build as shown in the picture below:
 
 <p align="center">
-  <img src="resources/docs/topology.svg" width="60%">
+  <img src="resources/docs/topology.svg" width="65%">
 </p>
 
 To run the topology with default parameters use the following command:

@@ -1,4 +1,4 @@
-SWITCHES=3
+SWITCHES=2
 HOSTS=4
 DURATION=30
 QUEUE=fifo
@@ -17,4 +17,3 @@ clear:
 
 clean:
 	sudo mn -c
-	

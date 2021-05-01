@@ -85,7 +85,7 @@ def setUpQueue(net, queueType):
         sys.exit(1)
 
     warn('*** Queue type: {queueType}\n'.format(queueType = queueType))
-    warn('\ntc qdisc show:\n', s0.cmd('tc qdisc show'), '\n')
+    warn('\n*** Output of \'tc qdisc show\' command:\n', s0.cmd('tc qdisc show | grep s0-eth1'), '\n')
 
 def terminateOutput(hosts, queueType):
     warn('*** Output files:\n')
@@ -96,8 +96,7 @@ def terminateOutput(hosts, queueType):
 
 def setUpTopology(switches, hosts):
     topo = TreeTopology(switches = switches, hosts = hosts)
-    net = Mininet(topo = topo, link = TCLink, host = CPULimitedHost)
-    c = net.addController('c', controller = Controller, ip = '127.0.0.1', port = 6633)
+    net = Mininet(topo = topo, link = TCLink, host = CPULimitedHost, controller = Controller)
     net.addNAT().configDefault()
     net.start()
     return net
@@ -144,7 +143,6 @@ if __name__ == '__main__':
     warn('\n*** Simulation time: {duration} seconds\n'.format(duration = duration))
 
     setUpQueue(net, queueType)
-    CLI(net)
 
     s0 = net.get('s0')
     s0.cmd('tcpdump -i {intf} -w jows-0.pcap &'.format(intf = 's0-eth1'))
