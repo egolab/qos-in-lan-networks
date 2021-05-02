@@ -27,6 +27,10 @@ To run the topology with default parameters use the following command:
 ```shell
 make run
 ```
+or
+```shell
+python src/topology.py
+```
 
 Command line parameters:
 - `--switches` - number of switches apart from the Main Switch, default `2`
