@@ -5,7 +5,7 @@ QUEUE=fifo
 .PHONY: install run clear clean
 
 install:
-	sudo apt install python git mininet -y vlc*
+	sudo apt install python git mininet -y
 	git clone git://github.com/mininet/mininet
 	mininet/util/install.sh -a
 
