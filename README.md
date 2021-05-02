@@ -25,7 +25,7 @@ Script `src/topology.py` creates a custom topology in *Mininet* environment. By 
 
 To run the topology with default parameters use the following command:
 ```shell
-sudo python src/topology.py
+make run
 ```
 
 Command line parameters:
