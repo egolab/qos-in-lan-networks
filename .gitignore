@@ -5,3 +5,5 @@
 /oftest
 /openflow
 /pox
+*.pcap
+/results
